@@ -40,8 +40,10 @@ const allowedAdds = new Set([
   "姬小兔",
 ]);
 
-const finder = buildPathFinder("寐魔", "阿努比斯", 3, allowedAdds);
+const finder = buildPathFinder("寐魔", "阿努比斯", 2);
 
 for await (const path of finder) {
-  console.log(path);
+  console.log(
+    path.map((step) => `${step.result}(${step.add})`).join(" > "),
+  );
 }
