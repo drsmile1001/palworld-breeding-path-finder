@@ -1,6 +1,4 @@
-import { recipeRepo } from "./RecipeRepo.ts";
-const source = "寐魔";
-const target = "阿努比斯";
+import { buildPathFinder } from "./PathFinder.ts";
 const allowedAdds = new Set([
   "棉悠悠",
   "捣蛋猫",
@@ -42,40 +40,7 @@ const allowedAdds = new Set([
   "姬小兔",
 ]);
 
-type Step = {
-  add: string;
-  result: string;
-};
-
-type Path = Step[];
-
-async function* findPath(maxDeep = 5, allowedAdds?: Set<string>) {
-  let paths: Path[] = [[{
-    add: source,
-    result: source,
-  }]];
-  let deep = 0;
-  while (true) {
-    deep++;
-    if (deep > maxDeep) break;
-    const newPaths: Path[] = [];
-    for (const path of paths) {
-      const lastStep = path[path.length - 1];
-      const map = await recipeRepo.getRecipes(lastStep.result);
-      for (const [add, result] of map) {
-        if (allowedAdds && !allowedAdds.has(add)) continue;
-        if (result === target) {
-          yield [...path, { add, result }];
-        }
-        newPaths.push([...path, { add, result }]);
-      }
-    }
-    if (newPaths.length === 0) break;
-    paths = newPaths;
-  }
-}
-
-const finder = findPath(3, allowedAdds);
+const finder = buildPathFinder("寐魔", "阿努比斯", 3, allowedAdds);
 
 for await (const path of finder) {
   console.log(path);
