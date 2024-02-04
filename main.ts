@@ -38,7 +38,7 @@ Deno.test("find path", () => {
     };
     path.forEach((step, i) => {
       obj[`step ${i + 1} add`] = step.add;
-      obj[`step ${i + 1} result`] = `${step.result} (${step.power})`;
+      obj[`step ${i + 1} result`] = step.result;
     });
     return obj;
   });
@@ -48,7 +48,7 @@ Deno.test("find path", () => {
   }\n`;
   const text = paths.reduce((acc, path) => {
     acc += path.reduce((acc, step) => {
-      acc += `\t${step.add}\t${step.result} (${step.power})`;
+      acc += `\t${step.add}\t${step.result}`;
       return acc;
     }, start) + "\n";
     return acc;
