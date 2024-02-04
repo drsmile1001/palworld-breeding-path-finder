@@ -49,10 +49,6 @@ export function getPalPower(id: string): number {
   return idIndexedPals.get(id)?.power ?? 0;
 }
 
-const breedingPowerIndexedPals = new IndexSortedCollection<
-  BreedingPowerEntry
->(breedingPowerEntries, (entry) => entry.power);
-
 const specialBreedingsText = await Deno.readTextFile("SpecialBreedings.txt");
 const { specialBreedingMap, specialBreedingPals } = specialBreedingsText.split(
   "\n",
@@ -77,6 +73,13 @@ const { specialBreedingMap, specialBreedingPals } = specialBreedingsText.split(
     specialBreedingPals: new Set<string>(),
   });
 
+const breedingPowerIndexedPals = new IndexSortedCollection<
+  BreedingPowerEntry
+>(
+  breedingPowerEntries.filter((entry) => !specialBreedingPals.has(entry.id)),
+  (entry) => entry.power,
+);
+
 export function breed(pal1Id: string, pal2Id: string): string {
   const specialResult = specialBreedingMap.get(pal1Id)?.get(pal2Id);
   if (specialResult) {
@@ -93,10 +96,7 @@ export function breed(pal1Id: string, pal2Id: string): string {
     const exactMatchId = found.matchedItems.slice().sort((a, b) =>
       a.indexOrder - b.indexOrder
     )[0].id;
-    if (!specialBreedingPals.has(exactMatchId)) {
-      return exactMatchId;
-    }
-    return breedingPowerIndexedPals.nextItem(power).next().value![0].id;
+    return exactMatchId;
   }
   const lower = found.leftItems[0];
   const upper = found.rightItems[0];

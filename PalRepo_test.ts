@@ -10,9 +10,16 @@ Deno.test("燧火鸟 id is 74", () => {
   assertEquals(getPalId("燧火鸟"), "74");
 });
 
-Deno.test("燧火鸟_幻悦蝶_叶胖达", () => {
+Deno.test("燧火鸟+幻悦蝶=叶胖达", () => {
   const aId = getPalId("燧火鸟");
   const bId = getPalId("幻悦蝶");
   const result = breed(aId, bId);
   assertEquals(getPalName(result), "叶胖达");
+});
+
+Deno.test("阿努比斯+寐魔=趴趴鲶", () => {
+  const aId = getPalId("阿努比斯");
+  const bId = getPalId("寐魔");
+  const result = breed(aId, bId);
+  assertEquals(getPalName(result), "趴趴鲶");
 });
