@@ -59,26 +59,25 @@ const { specialBreedingMap, specialBreedingPals } = specialBreedingsText.split(
 )
   .reduce((acc, line) => {
     const { specialBreedingMap, specialBreedingPals } = acc;
-    const [pal1Id, _1, pal2Id, _2, resultId] = line.split("\t").map((c) =>
-      c.trim()
-    );
-    const pal1 = pal1Id;
-    const pal2 = pal2Id;
-    const result = resultId;
-    const pal1Map = specialBreedingMap.get(pal1) ?? new Map<string, string>();
-    pal1Map.set(pal2, result);
-    specialBreedingMap.set(pal1, pal1Map);
-    const pal2Map = specialBreedingMap.get(pal2) ?? new Map<string, string>();
-    pal2Map.set(pal1, result);
-    specialBreedingMap.set(pal2, pal2Map);
-    specialBreedingPals.add(result);
+    const [_1, pal1Name, _2, pal2Name, _3, resultPalName] = line.split("\t")
+      .map((c) => c.trim());
+    const pal1Id = getPalId(pal1Name);
+    const pal2Id = getPalId(pal2Name);
+    const resultId = getPalId(resultPalName);
+    specialBreedingPals.add(resultId);
+    const pal1Map = specialBreedingMap.get(pal1Id) ?? new Map<string, string>();
+    pal1Map.set(pal2Id, resultId);
+    specialBreedingMap.set(pal1Id, pal1Map);
+    const pal2Map = specialBreedingMap.get(pal2Id) ?? new Map<string, string>();
+    pal2Map.set(pal1Id, resultId);
+    specialBreedingMap.set(pal2Id, pal2Map);
     return acc;
   }, {
     specialBreedingMap: new Map<string, Map<string, string>>(),
     specialBreedingPals: new Set<string>(),
   });
 
-function breed(pal1Id: string, pal2Id: string): string {
+export function breed(pal1Id: string, pal2Id: string): string {
   const specialResult = specialBreedingMap.get(pal1Id)?.get(pal2Id);
   if (specialResult) {
     return specialResult;
