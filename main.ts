@@ -1,49 +1,61 @@
-import { buildPathFinder } from "./PathFinder.ts";
-const allowedAdds = new Set([
-  "棉悠悠",
-  "捣蛋猫",
-  "皮皮鸡",
-  "翠叶鼠",
-  "火绒狐",
-  "冲浪鸭",
-  "伏特喵",
-  "新叶猿",
-  "企丸丸",
-  "企丸王",
-  "电棘鼠",
-  "冰刺鼠",
-  "叶泥泥",
-  "玉藻狐",
-  "啼卡尔",
-  "壶小象",
-  "瞅什魔",
-  "米露菲",
-  "寐魔",
-  "草莽猪",
-  "露娜蒂",
-  "遁地鼠",
-  "喵丝特",
-  "冰丝特",
-  "鲁米儿",
-  "猎狼",
-  "炸蛋鸟",
-  "波娜兔",
-  "波霸牛",
-  "荆棘魔仙",
-  "叶胖达",
-  "雷胖达",
-  "棉花糖",
-  "灌木羊",
-  "美露帕",
-  "紫霞鹿",
-  "疾风隼",
-  "姬小兔",
-]);
+import { findPaths } from "./Finders.ts";
+import { getAllPals, getPalId, getPalName } from "./PalRepo.ts";
 
-const finder = buildPathFinder("寐魔", "阿努比斯", 2);
-
-for await (const path of finder) {
-  console.log(
-    path.map((step) => `${step.result}(${step.add})`).join(" > "),
+Deno.test("find path", async () => {
+  const start = "冰棘兽";
+  const end = "百合女王";
+  console.log(`find path from ${start} to ${end}`);
+  let result = "";
+  for await (
+    const path of findPaths(getPalId(start), getPalId(end), 2)
+  ) {
+    const line = path.map((step) =>
+      `${getPalName(step.result)}(${getPalName(step.add)})`
+    ).join(" > ");
+    result += line + "\n";
+  }
+  console.log(result);
+  Deno.writeTextFileSync(
+    "result.txt",
+    result,
   );
-}
+});
+
+Deno.test("generate pal power ranking", () => {
+  const pals = getAllPals();
+  const indexByPower = pals.slice().sort((a, b) => a.power - b.power).map((
+    pal,
+    index,
+  ) => ({
+    pal,
+    index,
+  })).reduce((acc, { pal, index }) => {
+    acc.set(pal.id, index);
+    return acc;
+  }, new Map<string, number>());
+
+  const rankTable = pals.slice().sort((a, b) =>
+    Number(b.id.match(/\d+/)![0]) - Number(a.id.match(/\d+/)![0])
+  ).map((pal, index) => {
+    const powerIndex = indexByPower.get(pal.id)!;
+    return {
+      id: pal.id,
+      name: pal.name,
+      power: pal.power,
+      powerIndex,
+      distance: index - powerIndex,
+    };
+  });
+  console.table(rankTable);
+  const outputText = rankTable.reduce(
+    (acc, { id, name, power, powerIndex, distance }) => {
+      acc += `${id}\t${name}\t${power}\t${powerIndex}\t${distance}\n`;
+      return acc;
+    },
+    "ID\tName\tPower\tPowerIndex\tDistance\n",
+  );
+  Deno.writeTextFileSync(
+    "power-ranking.txt",
+    outputText,
+  );
+});
