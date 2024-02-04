@@ -7,7 +7,7 @@ type Step = {
 
 type Path = Step[];
 
-export async function* findPaths(
+export function* findPaths(
   sourceId: string,
   targetId: string,
   maxDeep = 5,
